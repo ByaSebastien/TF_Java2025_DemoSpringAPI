@@ -28,8 +28,8 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public void Save(Book book) {
-        bookRepository.save(book);
+    public Long Save(Book book) {
+        return bookRepository.save(book).getId();
     }
 
     @Override

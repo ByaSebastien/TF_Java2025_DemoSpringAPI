@@ -1,9 +1,14 @@
 package be.bstorm.tf_java2025_demospringapi.dal.initializers;
 
 import be.bstorm.tf_java2025_demospringapi.dal.repositories.BookRepository;
+import be.bstorm.tf_java2025_demospringapi.dal.repositories.RoleRepository;
+import be.bstorm.tf_java2025_demospringapi.dal.repositories.UserRepository;
 import be.bstorm.tf_java2025_demospringapi.dl.entities.Book;
+import be.bstorm.tf_java2025_demospringapi.dl.entities.Role;
+import be.bstorm.tf_java2025_demospringapi.dl.entities.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -14,11 +19,44 @@ import java.util.List;
 public class DataInitializer implements CommandLineRunner {
 
     private final BookRepository bookRepository;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void run(String... args) throws Exception {
 
-        if(bookRepository.count() == 0) {
+        if (roleRepository.count() == 0) {
+
+            Role admin = new Role("ADMIN");
+            Role user = new Role("USER");
+
+            admin.addPermission("READ_PERMISSION");
+            admin.addPermission("WRITE_PERMISSION");
+            admin.addPermission("DELETE_PERMISSION");
+
+            user.addPermission("READ_PERMISSION");
+
+            roleRepository.save(admin);
+            roleRepository.save(user);
+        }
+
+
+        if (userRepository.count() == 0) {
+            String password = passwordEncoder.encode("Test1234=");
+
+            User admin = new User("admin","admin@test.be",password);
+            admin.addRole(roleRepository.findByName("ADMIN").orElseThrow());
+
+            userRepository.save(admin);
+
+            User user = new User("user","user@test.be",password);
+            user.addRole(roleRepository.findByName("USER").orElseThrow());
+
+            userRepository.save(user);
+        }
+
+        if (bookRepository.count() == 0) {
             List<Book> books = List.of(
                     new Book(
                             "Eloquent JavaScript",

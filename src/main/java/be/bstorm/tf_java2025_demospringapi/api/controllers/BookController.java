@@ -1,9 +1,9 @@
-package be.bstorm.tf_java2025_demospringapi.pl.controllers;
+package be.bstorm.tf_java2025_demospringapi.api.controllers;
 
 import be.bstorm.tf_java2025_demospringapi.bll.services.BookService;
-import be.bstorm.tf_java2025_demospringapi.pl.models.book.BookDetailDto;
-import be.bstorm.tf_java2025_demospringapi.pl.models.book.BookForm;
-import be.bstorm.tf_java2025_demospringapi.pl.models.book.BookIndexDto;
+import be.bstorm.tf_java2025_demospringapi.api.models.book.BookDetailDto;
+import be.bstorm.tf_java2025_demospringapi.api.models.book.BookForm;
+import be.bstorm.tf_java2025_demospringapi.api.models.book.BookIndexDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -11,9 +11,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.UriBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -54,16 +57,22 @@ public class BookController {
         return ResponseEntity.ok(book);
     }
 
+    @PreAuthorize("hasAuthority('WRITE_PERMISSION')")
     @PostMapping
     public ResponseEntity<Void> createBook(
             @Valid @RequestBody BookForm bookForm
     ) {
 
-        bookService.Save(bookForm.ToEntity());
+        Long id = bookService.Save(bookForm.ToEntity());
 
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        UriBuilder builder = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}");
+
+        URI uri = builder.build(id);
+
+        return ResponseEntity.created(uri).build();
     }
 
+    @PreAuthorize("hasAuthority('WRITE_PERMISSION')")
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateBook(
             @PathVariable Long id,
@@ -74,10 +83,12 @@ public class BookController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasAuthority('DELETE_PERMISSION')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBook(
             @PathVariable Long id
     ) {
+
         bookService.Delete(id);
         return ResponseEntity.accepted().build();
     }

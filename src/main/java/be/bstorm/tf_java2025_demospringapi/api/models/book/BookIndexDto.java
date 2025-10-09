@@ -1,4 +1,4 @@
-package be.bstorm.tf_java2025_demospringapi.pl.models.book;
+package be.bstorm.tf_java2025_demospringapi.api.models.book;
 
 import be.bstorm.tf_java2025_demospringapi.dl.entities.Book;
 

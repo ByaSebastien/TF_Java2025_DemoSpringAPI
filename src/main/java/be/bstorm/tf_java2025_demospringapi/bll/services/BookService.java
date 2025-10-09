@@ -10,7 +10,7 @@ public interface BookService {
 
     Page<Book> findAll(Pageable pageable);
     Book findById(Long id);
-    void Save(Book book);
+    Long Save(Book book);
     void Update(Long id, Book book);
     void Delete(Long id);
 }
