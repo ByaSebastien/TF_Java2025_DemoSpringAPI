@@ -5,6 +5,8 @@ import be.bstorm.tf_java2025_demospringapi.dal.repositories.BookRepository;
 import be.bstorm.tf_java2025_demospringapi.dl.entities.Book;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -18,7 +20,10 @@ public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
 
     @Override
+    @Cacheable(value = "books", key = "#pageable.pageNumber + '-' + #pageable.pageSize + '-' + #pageable.sort")
     public Page<Book> findAll(Pageable pageable) {
+        System.out.println(pageable.getPageNumber() + '-' + pageable.getPageSize() + "-" + pageable.getSort());
+        System.out.println("Request done");
         return bookRepository.findAll(pageable);
     }
 
@@ -27,11 +32,14 @@ public class BookServiceImpl implements BookService {
         return bookRepository.findById(id).orElseThrow();
     }
 
+    @CacheEvict(cacheNames = "books", allEntries = true)
     @Override
     public Long Save(Book book) {
+
         return bookRepository.save(book).getId();
     }
 
+    @CacheEvict(cacheNames = "books", allEntries = true)
     @Override
     public void Update(Long id, Book book) {
         Book existing = bookRepository.findById(id).orElseThrow();
@@ -44,6 +52,7 @@ public class BookServiceImpl implements BookService {
         bookRepository.save(existing);
     }
 
+    @CacheEvict(cacheNames = "books", allEntries = true)
     @Override
     public void Delete(Long id) {
 
