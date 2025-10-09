@@ -57,7 +57,7 @@ public class BookController {
         return ResponseEntity.ok(book);
     }
 
-    @PreAuthorize("hasAuthority('WRITE_PERMISSION')")
+//    @PreAuthorize("hasAuthority('WRITE_PERMISSION')")
     @PostMapping
     public ResponseEntity<Void> createBook(
             @Valid @RequestBody BookForm bookForm
